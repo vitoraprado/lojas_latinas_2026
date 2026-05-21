@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
-import { request } from '../lib/api'
+import { request } from '../../../lib/api'
 
 const emptyCategory = { ID: null, NAME: '', DESCRIPTION: '' }
 const emptyProduct = { ID: null, CATEGORY_ID: 0, NAME: '', PRICE: 0, STOCK: 0 }

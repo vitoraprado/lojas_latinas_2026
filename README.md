@@ -2,7 +2,7 @@
 
 ## O que é este projeto
 
-Lojas Latinas
+As Lojas Latinas são um site de e-commerce de grande porte, com foco em experiência do cliente e recomendação personalizada de produtos, baseada em ferramentas de inteligência artificial.
 
 Este laboratório foi gerado pelo **Dev Lab Generator** para servir como base didática de desenvolvimento full stack com CRUD.
 
