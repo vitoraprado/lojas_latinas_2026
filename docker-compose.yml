@@ -1,0 +1,141 @@
+services:
+  lab_info:
+    image: busybox:1.36
+    container_name: lojas-latinas-info
+    depends_on:
+      db:
+        condition: service_healthy
+      db_admin:
+        condition: service_started
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - |
+        printf '%s\n' \
+        "=== DEV LAB STACK ===" \
+        "Projeto: lojas-latinas" \
+        "Banco: MySQL + phpMyAdmin -> localhost:3306" \
+        "Admin DB: localhost:8080" \
+        "Backend: Node.js / Express -> localhost:8000" \
+        "Frontend: Next SPA -> localhost:3000" \
+        "=== ACESSOS ===" \
+        "MySQL root: root / admin" \
+        "MySQL app: labuser / admin" \
+        "phpMyAdmin: http://localhost:8080/" \
+        "=== ONDE ALTERAR ===" \
+        "Banco: ./database/init/01-schema.sql" \
+        "Infra Docker: ./docker-compose.yml e ./.env" \
+        "Backend (Node.js / Express): ./backend/src/server.js" \
+        "Frontend (Next SPA): ./frontend/pages e ./frontend/lib"
+        sleep infinity
+    restart: "no"
+
+  db:
+    image: mysql:8.4
+    container_name: lojas-latinas-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      default:
+        aliases:
+          - db
+
+  db_admin:
+    image: phpmyadmin:5
+    container_name: lojas-latinas-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: lojas-latinas-backend
+    restart: unless-stopped
+    environment:
+      APP_DESCRIPTION: "Lojas Latinas"
+      DB_CLIENT: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: labdb
+      DB_USER: labuser
+      DB_PASSWORD: admin
+      DB_SCHEMA: labuser
+      PORT: 8000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/api/health >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 45s
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: lojas-latinas-frontend
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: http://localhost:8000/api
+      PORT: 3000
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_next_cache:/app/.next
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          curl -fsS http://127.0.0.1:3000/ >/dev/null && \
+          curl -fsS http://backend:8000/api/health >/dev/null
+      interval: 20s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
+  backend_node_modules:
+  frontend_node_modules:
+  frontend_next_cache:
