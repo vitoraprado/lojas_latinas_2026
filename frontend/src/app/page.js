@@ -1,4 +1,5 @@
 // frontend/src/app/page.js
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -7,15 +8,15 @@ export default function Home() {
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div className="container">
           <a className="navbar-brand fw-bold text-primary">
-            <i className="bi bi-layer-forward me-2"></i>Lojas Latinas
+            <i className="bi bi-basket me-2" href="#"></i>LOJAS LATINAS
           </a>
-          <button 
-            className="navbar-toggler" 
-            type="button" 
-            data-bs-toggle="collapse" 
-            data-bs-target="#navbarNav" 
-            aria-controls="navbarNav" 
-            aria-expanded="false" 
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
             aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
@@ -23,10 +24,9 @@ export default function Home() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <a className="nav-link active" href="#">Início</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Login</a>
+                <Link href="/painel/admin/login" className="nav-link">
+                <i className="bi bi-person-vcard me-2"></i>Acesso - Funcionários
+                </Link>
               </li>
             </ul>
           </div>
@@ -37,37 +37,44 @@ export default function Home() {
       <header className="bg-light py-5 border-bottom">
         <div className="container py-5">
           <div className="row align-items-center g-5">
+            
+            {/* Lado Esquerdo: Textos e Botões */}
             <div className="col-lg-6">
               <h1 className="display-4 fw-bold text-dark mb-3">
-                Seu app Next.js está pronto para o Back-end
+                Sua próxima compra é conosco!
               </h1>
               <p className="lead text-muted mb-4">
-                O Front-end já está estilizado com Bootstrap e rodando isolado dentro do Docker. Pronto para consumir as rotas da sua API em Node.js.
+                Prezamos pela qualidade e pela sua satisfação.
               </p>
+              
               <div className="d-grid gap-2 d-md-flex justify-content-md-start">
-                <button type="button" className="btn btn-primary btn-lg px-4 me-md-2 fw-bold">
-                  Começar Agora
-                </button>
-                <button type="button" className="btn className btn-outline-secondary btn-lg px-4">
-                  Ver Documentação
+                {/* Corrigido: O Link agora se comporta diretamente como o botão */}
+                <Link href="/loja/login" className="btn btn-primary btn-lg px-4 me-md-2 fw-bold d-inline-flex align-items-center justify-content-center">
+                  <i className="bi bi-person-fill me-2"></i>
+                  Login
+                </Link>
+                
+                {/* Corrigido: Removido o 'className' duplicado de dentro das classes */}
+                <button type="button" className="btn btn-outline-secondary btn-lg px-4 d-inline-flex align-items-center justify-content-center">
+                  <i className="bi bi-person-fill-add me-2"></i>
+                  Cadastre-se
                 </button>
               </div>
             </div>
+
+            {/* Lado Direito: Apenas a Logo PNG Solta */}
             <div className="col-lg-6 text-center">
-              {/* Um card flutuante simulando um painel/dashboard de teste */}
-              <div className="card shadow-lg p-4 bg-white rounded-3 border-0">
-                <div className="card-body text-start">
-                  <h5 className="card-title fw-bold text-secondary mb-3">Conexão com o Back-end</h5>
-                  <div className="alert alert-warning d-flex align-items-center" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill me-2fs-4 me-2"></i>
-                    <div>
-                      Status: Aguardando integração com a API Node...
-                    </div>
-                  </div>
-                  <button className="btn btn-sm btn-outline-primary">Testar Ping</button>
-                </div>
-              </div>
+              {/* Removemos o card branco e adicionamos uma leve transição/animação responsiva */}
+              <img 
+                src="/logo_ll.png" 
+                alt="Logo Lojas Latinas" 
+                width="450" 
+                height="450" 
+                className="img-fluid drop-shadow" 
+                style={{ maxHeight: '350px', objectFit: 'contain' }}
+              />
             </div>
+
           </div>
         </div>
       </header>
@@ -81,26 +88,26 @@ export default function Home() {
                 <div className="text-primary fs-1 mb-2">
                   <i className="bi bi-box-seam"></i>
                 </div>
-                <h3 className="h5 fw-bold">Dockerizado</h3>
-                <p className="text-muted">Ambiente isolado que roda igual na sua máquina e no servidor de produção.</p>
+                <h3 className="h5 fw-bold">Entregas Rápidas</h3>
+                <p className="text-muted">Previsões de entrega curtas com atualizações de rota até chegar a você.</p>
               </div>
             </div>
             <div className="col-md-4">
               <div className="p-4 border rounded-3 bg-white shadow-sm h-100">
-                <div className="text-success fs-1 mb-2">
-                  <i className="bi bi-lightning-charge"></i>
+                <div className="text-primary fs-1 mb-2">
+                  <i className="bi bi-basket2"></i>
                 </div>
-                <h3 className="h5 fw-bold">Next.js Fast Refresh</h3>
-                <p className="text-muted">Altere o código no seu editor e veja o resultado no navegador instantaneamente.</p>
+                <h3 className="h5 fw-bold">Recomendações Relevantes</h3>
+                <p className="text-muted">Produtos selecionados de acordo com os seus gostos e preferências.</p>
               </div>
             </div>
             <div className="col-md-4">
               <div className="p-4 border rounded-3 bg-white shadow-sm h-100">
-                <div className="text-danger fs-1 mb-2">
-                  <i className="bi bi-braces"></i>
+                <div className="text-primary fs-1 mb-2">
+                  <i className="bi bi-cash-coin"></i>
                 </div>
-                <h3 className="h5 fw-bold">Full Stack</h3>
-                <p className="text-muted">Separação limpa entre a interface visual e as regras de negócio no Node.</p>
+                <h3 className="h5 fw-bold">Melhores Ofertas</h3>
+                <p className="text-muted">Cadastre-se para receber os descontos mais quentes do mercado.</p>
               </div>
             </div>
           </div>
@@ -110,7 +117,8 @@ export default function Home() {
       {/* 4. Rodapé */}
       <footer className="py-4 bg-dark text-white-50 text-center mt-auto">
         <div className="container">
-          <small>&copy; {new Date().getFullYear()} - Criado com Next.js, Bootstrap e Docker</small>
+          <small>&copy; {new Date().getFullYear()} - Lojas Latinas<br/></small>
+          <small>Projeto - Linguagem de Programação para Internet</small>
         </div>
       </footer>
     </>
