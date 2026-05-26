@@ -1,4 +1,4 @@
-# lojas-latinas
+# Lojas Latinas
 
 ## O que é este projeto
 
