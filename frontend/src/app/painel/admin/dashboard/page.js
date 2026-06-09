@@ -147,15 +147,15 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {categories.map(item => (
-                        <tr key={item.ID}>
-                          <td className="text-secondary fw-bold">#{item.ID}</td>
-                          <td className="fw-bold text-dark">{item.NAME}</td>
-                          <td className="text-muted small">{item.DESCRIPTION || '—'}</td>
+                        <tr key={item.id}>
+                          <td className="text-secondary fw-bold">#{item.id}</td>
+                          <td className="fw-bold text-dark">{item.name}</td>
+                          <td className="text-muted small">{item.description || '—'}</td>
                           <td className="text-end text-nowrap">
-                            <button onClick={() => setCategory({ ID: item.ID, NAME: item.NAME, DESCRIPTION: item.DESCRIPTION ?? '' })} className="btn btn-light btn-sm text-primary me-1 rounded-2" title="Editar">
+                            <button onClick={() => setCategory({ ID: item.id, NAME: item.name, DESCRIPTION: item.description ?? '' })} className="btn btn-light btn-sm text-primary me-1 rounded-2" title="Editar">
                               <i className="bi bi-pencil-square"></i>
                             </button>
-                            <button onClick={() => removeCategory(item.ID)} className="btn btn-light btn-sm text-danger rounded-2" title="Excluir">
+                            <button onClick={() => removeCategory(item.id)} className="btn btn-light btn-sm text-danger rounded-2" title="Excluir">
                               <i className="bi bi-trash3"></i>
                             </button>
                           </td>
@@ -183,7 +183,7 @@ export default function Home() {
                   <div className="col-12 col-md-6">
                     <select className="form-select" value={product.CATEGORY_ID} onChange={e => setProduct({ ...product, CATEGORY_ID: Number(e.target.value) })}>
                       <option value={0}>Selecione a categoria</option>
-                      {categories.map(item => <option key={item.ID} value={item.ID}>{item.NAME}</option>)}
+                      {categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
                     </select>
                   </div>
                   <div className="col-12 col-md-6">

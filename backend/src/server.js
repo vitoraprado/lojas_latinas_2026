@@ -86,7 +86,11 @@ app.get('/api/health', wrap(async (_, res) => {
   });
 }));
 
-app.get('/api/categories', wrap(async (_, res) => {
+import categoryRoutes from './routes/category.routes.js';
+
+app.use('/api/categories', categoryRoutes);
+
+/*app.get('/api/categories', wrap(async (_, res) => {
   const result = await query('SELECT id, name, description FROM categories ORDER BY id');
   res.json(result.rows);
 }));
@@ -126,7 +130,7 @@ app.delete('/api/categories/:id', wrap(async (req, res) => {
   const sql = dbClient === 'oracle' ? 'DELETE FROM categories WHERE id = :1' : 'DELETE FROM categories WHERE id = ?';
   await query(sql, [Number(req.params.id)]);
   res.status(204).send();
-}));
+}));*/
 
 app.get('/api/products', wrap(async (_, res) => {
   const result = await query('SELECT p.id, p.category_id, p.name, p.price, p.stock, c.name AS category_name FROM products p JOIN categories c ON c.id = p.category_id ORDER BY p.id');
