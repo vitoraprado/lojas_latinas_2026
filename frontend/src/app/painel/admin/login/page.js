@@ -1,6 +1,4 @@
-// frontend/src/app/(sua-rota-de-login)/page.js
-'use client'; // Necessário para gerenciar o estado do formulário (React Hooks)
-
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 
