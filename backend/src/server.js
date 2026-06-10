@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import mysql from 'mysql2/promise';
 import oracledb from 'oracledb';
+import {wrap} from './middleware/errorHandler.js';
+import {query} from './config/database.js';
 
 const app = express();
 const port = Number(process.env.PORT || 8000);
@@ -15,49 +17,6 @@ app.use(cors({
 }));
 app.options('*', cors());
 app.use(express.json());
-
-let mysqlPool = null;
-
-function upperCaseKeys(value) {
-  if (Array.isArray(value)) return value.map(upperCaseKeys);
-  if (!value || typeof value !== 'object') return value;
-  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key.toUpperCase(), upperCaseKeys(item)]));
-}
-
-function bodyValue(body, field) {
-  return body?.[field] ?? body?.[field.toUpperCase()];
-}
-
-function normalizeRows(rows) {
-  return (rows || []).map((row) => upperCaseKeys(row));
-}
-
-async function query(sql, params = []) {
-  if (dbClient === 'oracle') {
-    const conn = await oracledb.getConnection({
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      connectString: `${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
-    });
-    try {
-      const result = await conn.execute(sql, params, { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT });
-      return { rows: normalizeRows(result.rows) };
-    } finally {
-      await conn.close();
-    }
-  }
-
-  const pool = await getMysqlPool();
-  const [rows] = await pool.query(sql, params);
-  return { rows: normalizeRows(rows) };
-}
-
-function wrap(handler) {
-  return (req, res) => Promise.resolve(handler(req, res)).catch((err) => {
-    console.error(err);
-    res.status(500).json({ ERROR: 'Internal error', DETAILS: String(err.message || err) });
-  });
-}
 
 app.get('/api/health', wrap(async (_, res) => {
   const sql = dbClient === 'oracle'
