@@ -24,7 +24,7 @@ export default function Home() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <Link href="/painel/admin/login" className="nav-link">
+                <Link href="/admin/login" className="nav-link">
                 <i className="bi bi-person-vcard me-2"></i>Acesso - Funcionários
                 </Link>
               </li>

@@ -1,7 +1,7 @@
 "use client"
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
-import { request } from '../../../../../lib/api'
+import { request } from '../../../../lib/api'
 
 const emptyCategory = { id: null, name: '', description: '' }
 const emptyProduct = { id: null, category_id: 0, name: '', price: 0, stock: 0 }

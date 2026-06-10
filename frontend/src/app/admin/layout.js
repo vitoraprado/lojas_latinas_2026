@@ -2,7 +2,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // Ícones do Bootstrap
 
-import BootstrapClient from '../../../components/BootstrapClient';
+import BootstrapClient from '../../components/BootstrapClient';
 
 // src/app/painel/admin/layout.js (CORRETO)
 export default function AdminLayout({ children }) {
