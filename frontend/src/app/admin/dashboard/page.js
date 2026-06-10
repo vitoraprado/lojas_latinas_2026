@@ -1,12 +1,15 @@
 "use client"
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation';
 import { request } from '../../../../lib/api'
+import { getUser } from '../../../services/auth';
 
 const emptyCategory = { id: null, name: '', description: '' }
 const emptyProduct = { id: null, category_id: 0, name: '', price: 0, stock: 0 }
 
 export default function Home() {
+  const router = useRouter();
   const [categories, setCategories] = useState([])
   const [products, setProducts] = useState([])
   const [category, setCategory] = useState(emptyCategory)
@@ -23,7 +26,20 @@ export default function Home() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    const user = getUser();
+
+    if (!user) {
+      router.push('./login');
+      return;
+    }
+
+    if (user.user_type !== 1) {
+      router.push('/');
+    }
+
+    load();
+  }, []);
 
   const saveCategory = async () => {
     try {

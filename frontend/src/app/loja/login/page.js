@@ -6,11 +6,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Aqui no futuro você vai conectar com a sua API Node.js usando o Axios ou Fetch
-    console.log('Dados de login enviados:', { email, senha });
-    alert(`Tentando logar com: ${email}`);
+    const response = await fetch(
+      '/api/users/login',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+          password: senha
+        })
+      }
+    );
+    
+    const user = await response.json();
+    localStorage.setItem(
+      'user',
+      JSON.stringify(user)
+    );
+
+    if (response.ok) {
+      router.push('/principal');
+    }
   };
 
   return (

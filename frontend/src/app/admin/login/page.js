@@ -1,16 +1,41 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const router = useRouter();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Aqui no futuro você vai conectar com a sua API Node.js usando o Axios ou Fetch
-    console.log('Dados de login enviados:', { email, senha });
-    alert(`Tentando logar com: ${email}`);
+    const response = await fetch(
+      'http://localhost:8000/api/users/login',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          password: senha,
+          user_type: 1, // 1 para funcionários
+        })
+      }
+    );
+
+    console.log('Resposta do login:', response);
+    
+    if (response.ok) {
+      const user = await response.json();
+      localStorage.setItem('user', JSON.stringify(user));
+      router.push('dashboard');
+    } else {
+      const error = await response.json();
+      alert(error.message || 'Usuário ou senha inválidos');
+      return;
+    }
   };
 
   return (

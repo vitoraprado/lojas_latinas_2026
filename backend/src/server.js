@@ -39,4 +39,8 @@ import productRoutes from './routes/product.routes.js';
 
 app.use('/api/products', productRoutes);
 
+import userRoutes from './routes/user.routes.js';
+
+app.use('/api/users', userRoutes);
+
 app.listen(port, '0.0.0.0', () => console.log(`Backend Node rodando na porta ${port}`));
