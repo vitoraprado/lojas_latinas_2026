@@ -3,8 +3,8 @@ import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { request } from '../../../../../lib/api'
 
-const emptyCategory = { ID: null, NAME: '', DESCRIPTION: '' }
-const emptyProduct = { ID: null, CATEGORY_ID: 0, NAME: '', PRICE: 0, STOCK: 0 }
+const emptyCategory = { id: null, name: '', description: '' }
+const emptyProduct = { id: null, category_id: 0, name: '', price: 0, stock: 0 }
 
 export default function Home() {
   const [categories, setCategories] = useState([])
@@ -27,8 +27,8 @@ export default function Home() {
 
   const saveCategory = async () => {
     try {
-      if (category.ID) {
-        await request(`/categories/${category.ID}`, { method: 'PUT', body: JSON.stringify(category) })
+      if (category.id) {
+        await request(`/categories/${category.id}`, { method: 'PUT', body: JSON.stringify(category) })
       } else {
         await request('/categories', { method: 'POST', body: JSON.stringify(category) })
       }
@@ -42,8 +42,8 @@ export default function Home() {
 
   const saveProduct = async () => {
     try {
-      if (product.ID) {
-        await request(`/products/${product.ID}`, { method: 'PUT', body: JSON.stringify(product) })
+      if (product.id) {
+        await request(`/products/${product.id}`, { method: 'PUT', body: JSON.stringify(product) })
       } else {
         await request('/products', { method: 'POST', body: JSON.stringify(product) })
       }
@@ -108,8 +108,8 @@ export default function Home() {
                       type="text"
                       className="form-control" 
                       placeholder="Nome da categoria" 
-                      value={category.NAME} 
-                      onChange={e => setCategory({ ...category, NAME: e.target.value })} 
+                      value={category.name} 
+                      onChange={e => setCategory({ ...category, name: e.target.value })} 
                     />
                   </div>
                   <div className="col-12">
@@ -117,16 +117,16 @@ export default function Home() {
                       type="text"
                       className="form-control" 
                       placeholder="Descrição curta" 
-                      value={category.DESCRIPTION} 
-                      onChange={e => setCategory({ ...category, DESCRIPTION: e.target.value })} 
+                      value={category.description} 
+                      onChange={e => setCategory({ ...category, description: e.target.value })} 
                     />
                   </div>
                   <div className="col-12 d-flex gap-2 mt-3">
                     <button onClick={saveCategory} className="btn btn-primary fw-bold w-100 d-inline-flex align-items-center justify-content-center">
-                      <i className={`bi ${category.ID ? 'bi-check-circle' : 'bi-plus-circle'} me-2`}></i>
-                      {category.ID ? 'Atualizar' : 'Adicionar'}
+                      <i className={`bi ${category.id ? 'bi-check-circle' : 'bi-plus-circle'} me-2`}></i>
+                      {category.id ? 'Atualizar' : 'Adicionar'}
                     </button>
-                    {category.ID ? (
+                    {category.id ? (
                       <button onClick={() => setCategory(emptyCategory)} className="btn btn-outline-secondary">
                         Cancelar
                       </button>
@@ -152,7 +152,7 @@ export default function Home() {
                           <td className="fw-bold text-dark">{item.name}</td>
                           <td className="text-muted small">{item.description || '—'}</td>
                           <td className="text-end text-nowrap">
-                            <button onClick={() => setCategory({ ID: item.id, NAME: item.name, DESCRIPTION: item.description ?? '' })} className="btn btn-light btn-sm text-primary me-1 rounded-2" title="Editar">
+                            <button onClick={() => setCategory({ id: item.id, name: item.name, description: item.description ?? '' })} className="btn btn-light btn-sm text-primary me-1 rounded-2" title="Editar">
                               <i className="bi bi-pencil-square"></i>
                             </button>
                             <button onClick={() => removeCategory(item.id)} className="btn btn-light btn-sm text-danger rounded-2" title="Excluir">
@@ -181,7 +181,7 @@ export default function Home() {
                 {/* Formulário de Cadastro/Edição */}
                 <div className="row g-2 mb-4">
                   <div className="col-12 col-md-6">
-                    <select className="form-select" value={product.CATEGORY_ID} onChange={e => setProduct({ ...product, CATEGORY_ID: Number(e.target.value) })}>
+                    <select className="form-select" value={product.category_id} onChange={e => setProduct({ ...product, category_id: Number(e.target.value) })}>
                       <option value={0}>Selecione a categoria</option>
                       {categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
                     </select>
@@ -191,8 +191,8 @@ export default function Home() {
                       type="text"
                       className="form-control" 
                       placeholder="Nome do produto" 
-                      value={product.NAME} 
-                      onChange={e => setProduct({ ...product, NAME: e.target.value })} 
+                      value={product.name} 
+                      onChange={e => setProduct({ ...product, name: e.target.value })} 
                     />
                   </div>
                   <div className="col-12 col-md-6">
@@ -203,8 +203,8 @@ export default function Home() {
                         step="0.01" 
                         className="form-control"
                         placeholder="Preço" 
-                        value={product.PRICE} 
-                        onChange={e => setProduct({ ...product, PRICE: Number(e.target.value) })} 
+                        value={product.price} 
+                        onChange={e => setProduct({ ...product, price: Number(e.target.value) })} 
                       />
                     </div>
                   </div>
@@ -213,16 +213,16 @@ export default function Home() {
                       type="number" 
                       className="form-control"
                       placeholder="Estoque" 
-                      value={product.STOCK} 
-                      onChange={e => setProduct({ ...product, STOCK: Number(e.target.value) })} 
+                      value={product.stock} 
+                      onChange={e => setProduct({ ...product, stock: Number(e.target.value) })} 
                     />
                   </div>
                   <div className="col-12 d-flex gap-2 mt-3">
                     <button onClick={saveProduct} className="btn btn-primary fw-bold w-100 d-inline-flex align-items-center justify-content-center">
-                      <i className={`bi ${product.ID ? 'bi-check-circle' : 'bi-plus-circle'} me-2`}></i>
-                      {product.ID ? 'Atualizar' : 'Adicionar'}
+                      <i className={`bi ${product.id ? 'bi-check-circle' : 'bi-plus-circle'} me-2`}></i>
+                      {product.id ? 'Atualizar' : 'Adicionar'}
                     </button>
-                    {product.ID ? (
+                    {product.id ? (
                       <button onClick={() => setProduct(emptyProduct)} className="btn btn-outline-secondary">
                         Cancelar
                       </button>
@@ -245,25 +245,25 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {products.map(item => (
-                        <tr key={item.ID}>
-                          <td className="text-secondary fw-bold">#{item.ID}</td>
-                          <td className="fw-bold text-dark">{item.NAME}</td>
+                        <tr key={item.id}>
+                          <td className="text-secondary fw-bold">#{item.id}</td>
+                          <td className="fw-bold text-dark">{item.name}</td>
                           <td>
                             <span className="badge bg-light text-secondary rounded-pill px-3 py-2">
-                              {item.CATEGORY_NAME || `ID: ${item.CATEGORY_ID}`}
+                              {item.category_name || `ID: ${item.category_id}`}
                             </span>
                           </td>
-                          <td className="fw-bold text-dark">R$ {Number(item.PRICE).toFixed(2)}</td>
+                          <td className="fw-bold text-dark">R$ {Number(item.price).toFixed(2)}</td>
                           <td className="text-center">
-                            <span className={`fw-bold ${item.STOCK < 5 ? 'text-danger' : 'text-success'}`}>
-                              {item.STOCK} un
+                            <span className={`fw-bold ${item.stock < 5 ? 'text-danger' : 'text-success'}`}>
+                              {item.stock} un
                             </span>
                           </td>
                           <td className="text-end text-nowrap">
-                            <button onClick={() => setProduct({ ID: item.ID, CATEGORY_ID: Number(item.CATEGORY_ID), NAME: item.NAME, PRICE: Number(item.PRICE), STOCK: Number(item.STOCK) })} className="btn btn-light btn-sm text-primary me-1 rounded-2" title="Editar">
+                            <button onClick={() => setProduct({ id: item.id, category_id: Number(item.category_id), name: item.name, price: Number(item.price), stock: Number(item.stock) })} className="btn btn-light btn-sm text-primary me-1 rounded-2" title="Editar">
                               <i className="bi bi-pencil-square"></i>
                             </button>
-                            <button onClick={() => removeProduct(item.ID)} className="btn btn-light btn-sm text-danger rounded-2" title="Excluir">
+                            <button onClick={() => removeProduct(item.id)} className="btn btn-light btn-sm text-danger rounded-2" title="Excluir">
                               <i className="bi bi-trash3"></i>
                             </button>
                           </td>
