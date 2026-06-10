@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { request } from '../../../../lib/api'
-import { getUser } from '../../../services/auth';
+import { getUser, logout } from '../../../services/auth';
 
 const emptyCategory = { id: null, name: '', description: '' }
 const emptyProduct = { id: null, category_id: 0, name: '', price: 0, stock: 0 }
@@ -88,12 +88,22 @@ export default function Home() {
       <main className="container">
         
         {/* Cabeçalho da Página */}
-        <div className="mb-5 text-center text-md-start">
-          <div className="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
-            <i className="bi bi-person-vcard text-primary me-2" style={{ fontSize: '2rem' }}></i>
-            <h1 className="fw-bold text-dark mb-0">Área do Funcionário</h1>
-          </div>
-          <p className="text-muted lead ps-md-5 ms-md-2">Painel de controle para gerenciamento de categorias e produtos</p>
+        <div className="d-flex align-items-center mb-2">
+          <i className="bi bi-person-vcard text-primary me-2" style={{ fontSize: '2rem' }}></i>
+
+          <h1 className="fw-bold text-dark mb-0">
+            Área do Funcionário
+          </h1>
+
+          <button
+            className="btn btn-primary ms-auto fw-bold"
+            onClick={() => {
+              logout();
+              router.push('./login');
+            }}
+          >
+            Sair
+          </button>
         </div>
 
         {/* Alerta de Mensagem do Sistema */}
