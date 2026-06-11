@@ -1,9 +1,37 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getUser, logout } from '../../../services/auth';
 
 export default function MainPage() {
+    const router = useRouter();
+    const [message, setMessage] = useState('')
 
+    const load = async () => {
+        try {
+        //setCategories(await request('/categories'))
+        //setProducts(await request('/products'))
+        setMessage('Dados carregados com sucesso.')
+        } catch (error) {
+        setMessage(error.message || 'Falha ao carregar dados.')
+        }
+    }
+
+    useEffect(() => {
+        const user = getUser();
+
+        if (!user) {
+        router.push('./login');
+        return;
+        }
+
+        if (user.user_type !== 2) {
+        router.push('/');
+        }
+
+        load();
+    }, []);
 
 
     return (
@@ -27,9 +55,12 @@ export default function MainPage() {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
-                                <Link href="/painel/admin/login" className="nav-link">
-                                    <i className="bi bi-person-vcard me-2"></i>Acesso - Funcionários
-                                </Link>
+                                <a className="nav-link">
+                                    <i className="bi bi-door-open me-2" onClick={() => {
+                                        logout();
+                                        router.push('./login');
+                                    }}></i>Sair
+                                </a>
                             </li>
                         </ul>
                     </div>

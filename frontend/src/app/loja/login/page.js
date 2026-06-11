@@ -1,32 +1,38 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
     const response = await fetch(
-      '/api/users/login',
+      'http://localhost:8000/api/users/login',
       {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           email,
-          password: senha
+          password: senha,
+          user_type: 2, // 2 para Clientes
         })
       }
     );
-    
-    const user = await response.json();
-    localStorage.setItem(
-      'user',
-      JSON.stringify(user)
-    );
 
     if (response.ok) {
-      router.push('/principal');
+      const user = await response.json();
+      localStorage.setItem('user', JSON.stringify(user));
+      window.location.href = './principal';
+    } else {
+      const error = await response.json();
+      alert(error.message || 'Usuário ou senha inválidos');
+      return;
     }
   };
 
