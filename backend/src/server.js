@@ -1,14 +1,12 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import mysql from 'mysql2/promise';
 import oracledb from 'oracledb';
-import {wrap} from './middleware/errorHandler.js';
-import {query} from './config/database.js';
+import { wrap } from './shared/http/errorHandler.js';
+import { query } from './shared/database/database.js';
+import { app } from './app.js'; 
 
-const app = express();
-const port = Number(process.env.PORT || 8000);
 const dbClient = (process.env.DB_CLIENT || 'mysql').toLowerCase();
-
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -16,7 +14,6 @@ app.use(cors({
   exposedHeaders: ['Content-Type'],
 }));
 app.options('*', cors());
-app.use(express.json());
 
 app.get('/api/health', wrap(async (_, res) => {
   const sql = dbClient === 'oracle'
@@ -31,16 +28,8 @@ app.get('/api/health', wrap(async (_, res) => {
   });
 }));
 
-import categoryRoutes from './routes/category.routes.js';
+const port = Number(process.env.PORT || 8000);
 
-app.use('/api/categories', categoryRoutes);
-
-import productRoutes from './routes/product.routes.js';
-
-app.use('/api/products', productRoutes);
-
-import userRoutes from './routes/user.routes.js';
-
-app.use('/api/users', userRoutes);
-
-app.listen(port, '0.0.0.0', () => console.log(`Backend Node rodando na porta ${port}`));
+app.listen(port, () => {
+  console.log(`Backend rodando em http://localhost:${port}`);
+});

@@ -26,8 +26,9 @@ export default function MainPage() {
         return;
         }
 
-        if (user.user_type !== 2) {
+        if (Number(user.user_type) !== 2) {
         router.push('/');
+        return;
         }
 
         load();
@@ -55,11 +56,15 @@ export default function MainPage() {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
-                                <a className="nav-link">
-                                    <i className="bi bi-door-open me-2" onClick={() => {
+                                <a 
+                                    className="nav-link" 
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => {
                                         logout();
                                         router.push('./login');
-                                    }}></i>Sair
+                                    }}
+                                >
+                                    <i className="bi bi-door-open me-2"></i>Sair
                                 </a>
                             </li>
                         </ul>

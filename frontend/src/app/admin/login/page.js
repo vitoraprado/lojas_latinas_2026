@@ -11,7 +11,7 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     const response = await fetch(
-      'http://localhost:8000/api/users/login',
+      'http://127.0.0.1:8000/api/users/login',
       {
         method: 'POST',
         headers: {
@@ -28,8 +28,8 @@ export default function LoginPage() {
     console.log('Resposta do login:', response);
     
     if (response.ok) {
-      const user = await response.json();
-      localStorage.setItem('user', JSON.stringify(user));
+      const result = await response.json();
+      localStorage.setItem('user', JSON.stringify(result.data));
       router.push('dashboard');
     } else {
       const error = await response.json();

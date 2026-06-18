@@ -18,8 +18,12 @@ export default function Home() {
 
   const load = async () => {
     try {
-      setCategories(await request('/categories'))
-      setProducts(await request('/products'))
+      // Extrai a propriedade .data dos novos objetos de resposta da API
+      const resCategories = await request('/categories')
+      const resProducts = await request('/products')
+      
+      setCategories(resCategories?.data || [])
+      setProducts(resProducts?.data || [])
       setMessage('Dados carregados com sucesso.')
     } catch (error) {
       setMessage(error.message || 'Falha ao carregar dados.')
