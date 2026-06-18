@@ -1,18 +1,42 @@
-// frontend/src/app/(sua-rota-de-login)/page.js
-'use client'; // Necessário para gerenciar o estado do formulário (React Hooks)
-
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Aqui no futuro você vai conectar com a sua API Node.js usando o Axios ou Fetch
-    console.log('Dados de login enviados:', { email, senha });
-    alert(`Tentando logar com: ${email}`);
+    const response = await fetch(
+      'http://127.0.0.1:8000/api/users/login',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          password: senha,
+          user_type: 2, // 2 para Clientes
+        })
+      }
+    );
+
+    if (response.ok) {
+      const user = await response.json();
+      const userData = Array.isArray(user.data) ? user.data[0] : user.data;
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      router.push('./principal');
+    } else {
+      const error = await response.json();
+      alert(error.message || 'Usuário ou senha inválidos');
+      return;
+    }
   };
 
   return (
