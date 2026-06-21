@@ -15,7 +15,7 @@ export class ProductRepository {
     const pool = await getMysqlPool();
 
     const [rows] = await pool.query(
-      'SELECT id, category_id, name, price, stock FROM products ORDER BY id'
+      'SELECT p.id, p.category_id, c.name as category_name, p.name, p.price, p.stock FROM products p JOIN categories c ON p.category_id = c.id ORDER BY p.id'
     );
 
     return rows;
@@ -25,7 +25,7 @@ export class ProductRepository {
     const pool = await getMysqlPool();
 
     const [rows] = await pool.query(
-      'SELECT id, category_id, name, price, stock FROM products WHERE id = ?',
+      'SELECT p.id, p.category_id, c.name as category_name, p.name, p.price, p.stock FROM products p JOIN categories c ON p.category_id = c.id WHERE p.id = ?',
       [id]
     );
 
@@ -58,6 +58,15 @@ export class ProductRepository {
     await pool.query(
       'DELETE FROM products WHERE id = ?',
       [id]
+    );
+  }
+
+  async incrementStock(id, quantity) {
+    const pool = await getMysqlPool();
+
+    await pool.query(
+      'UPDATE products SET stock = stock + ? WHERE id = ?',
+      [quantity, id]
     );
   }
 }
