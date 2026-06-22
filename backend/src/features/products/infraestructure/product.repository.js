@@ -32,23 +32,23 @@ export class ProductRepository {
     return rows[0];
   }
 
-  async create(category_id, name, price, stock) {
+  async create(product) {
     const pool = await getMysqlPool();
 
     const [result] = await pool.query(
       'INSERT INTO products(category_id, name, price, stock) VALUES (?, ?, ?, ?)',
-      [category_id, name, price, stock]
+      [product.category_id, product.name, product.price, product.stock]
     );
 
     return result.insertId;
   }
 
-  async update(id, category_id, name, price, stock) {
+  async update(id, product) {
     const pool = await getMysqlPool();
 
     await pool.query(
       'UPDATE products SET category_id = ?, name = ?, price = ?, stock = ? WHERE id = ?',
-      [category_id, name, price, stock, id]
+      [product.category_id, product.name, product.price, product.stock, id]
     );
   }
 

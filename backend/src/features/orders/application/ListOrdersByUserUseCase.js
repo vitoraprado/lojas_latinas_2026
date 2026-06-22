@@ -1,4 +1,4 @@
-export class ListOrdersUseCase {
+export class ListOrdersByUserUseCase {
   constructor(orderRepository) {
     this.orderRepository = orderRepository;
   }

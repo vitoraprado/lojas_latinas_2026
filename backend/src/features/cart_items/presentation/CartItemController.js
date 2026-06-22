@@ -12,7 +12,7 @@ export class CartItemController {
   async index(request, response, next) {
     try {
       const useCase = new ListCartItemsUseCase(repository);
-      const cartItems = await useCase.execute(request.params.userId);
+      const cartItems = await useCase.execute(request.params.user_id);
       return sendResponse(response, 200, cartItems);
     } catch (error) {
       next(error);

@@ -7,7 +7,7 @@ export class UpdateCartItemUseCase {
   }
 
   async execute(id, payload) {
-    requiredFields(payload, ['name']);
+    requiredFields(payload, ['quantity']);
 
     const exists = await this.cartItemRepository.findById(id);
 
@@ -15,6 +15,6 @@ export class UpdateCartItemUseCase {
       throw new AppError('Item do carrinho não encontrado', 404);
     }
 
-    return this.cartItemRepository.update(id, payload);
+    return this.cartItemRepository.update(id, payload.user_id, payload.product_id, payload.quantity);
   }
 }

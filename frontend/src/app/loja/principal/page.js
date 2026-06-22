@@ -15,9 +15,9 @@ export default function MainPage() {
         try {
             const response = await request('/products')
             setProducts(response?.data || [])
-            setMessage('Dados carregados com sucesso.')
+            // Removemos o setMessage de sucesso aqui para não sumir com erros importantes na tela
         } catch (error) {
-            setMessage(error.message || 'Falha ao carregar dados.')
+            setMessage(error.message || 'Falha ao carregar dados.');
         }
     }
 
@@ -40,6 +40,31 @@ export default function MainPage() {
 
         load();
     }, []);
+
+    const addToCart = async (product) => {
+        try {
+            setMessage('');
+            const user = getUser();
+            
+            if (!user || !user.id) {
+                setMessage('Erro: Usuário não identificado ou ID ausente no login.');
+                return;
+            }
+
+            await request('/cart_items', {
+                method: 'POST',
+                body: JSON.stringify({
+                    user_id: Number(user.id),
+                    product_id: Number(product.id),
+                    quantity: 1
+                })
+            });
+
+            setMessage(`"${product.name}" adicionado ao carrinho com sucesso!`);
+        } catch (error) {
+            setMessage(error.message || 'Falha ao adicionar item ao carrinho.');
+        }
+    };
 
 
     return (
@@ -67,17 +92,22 @@ export default function MainPage() {
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav ms-auto">
+                        <ul className="navbar-nav ms-auto align-items-center">
+                            <li className="nav-item me-3">
+                                <Link href="/loja/pedidos" className="nav-link d-flex align-items-center gap-1">
+                                    <i className="bi bi-journal-text"></i> Meus Pedidos
+                                </Link>
+                            </li>
                             <li className="nav-item">
                                 <a 
-                                    className="nav-link" 
+                                    className="nav-link text-danger fw-semibold" 
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => {
                                         logout();
                                         router.push('./login');
                                     }}
                                 >
-                                    <i className="bi bi-door-open me-2"></i>Sair
+                                    <i className="bi bi-door-open me-1"></i>Sair
                                 </a>
                             </li>
                         </ul>
@@ -90,6 +120,14 @@ export default function MainPage() {
                 <h2 className="fw-bold text-dark mb-4 text-center text-sm-start">
                     Nossos Produtos
                 </h2>
+
+                {/* Feedback para o usuário */}
+                {message && (
+                  <div className="alert alert-primary alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                     <i className="bi bi-info-circle-fill me-2"></i>{message}
+                     <button type="button" className="btn-close" onClick={() => setMessage('')}></button>
+                  </div>
+                )}
 
                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                     {products.map(item => (
@@ -109,13 +147,12 @@ export default function MainPage() {
                                         Disponível: {item.stock > 0 ? `${item.stock} un` : 'Esgotado'}
                                     </p>
 
-                                    {/* AVISO DE ÚLTIMAS UNIDADES: Aparece se o estoque for maior que 0 e menor que 10 */}
+                                    {/* AVISO DE ÚLTIMAS UNIDADES */}
                                     {item.stock > 0 && item.stock < 10 ? (
                                         <div className="text-danger small fw-bold mb-3 d-flex align-items-center gap-1">
                                             <i className="bi bi-exclamation-triangle-fill"></i> Últimas unidades!
                                         </div>
                                     ) : (
-                                        // Mantém o espaçamento igual nos cards que não têm o aviso
                                         <div className="mb-3" style={{ height: '19.5px' }}></div>
                                     )}
                                     
@@ -126,7 +163,7 @@ export default function MainPage() {
                                         <button 
                                             className="btn btn-primary btn-sm rounded-pill px-3 fw-bold d-inline-flex align-items-center gap-1"
                                             disabled={item.stock <= 0}
-                                            onClick={() => alert(`Adicionando ${item.name} ao carrinho`)}
+                                            onClick={() => addToCart(item)}
                                         >
                                             <i className="bi bi-cart-plus-fill"></i> Comprar
                                         </button>
@@ -155,7 +192,7 @@ export default function MainPage() {
                     height: '60px', 
                     zIndex: 1050 
                 }}
-                onClick={() => alert('Carrinho em desenvolvimento!')}
+                onClick={() => router.push('/loja/carrinho')}
                 title="Carrinho de Compras"
             >
                 <i className="bi bi-cart-fill fs-4 text-white"></i>

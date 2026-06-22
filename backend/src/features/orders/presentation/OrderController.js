@@ -1,19 +1,22 @@
 import { sendResponse } from '../../../shared/http/sendResponse.js';
 import { OrderRepository } from '../infraestructure/order.repository.js';
 import { ProductRepository } from '../../products/infraestructure/product.repository.js';
+import { CartItemRepository } from '../../cart_items/infraestructure/cartitem.repository.js';
 import { CancelOrderUseCase } from '../application/CancelOrderUseCase.js';
 import { CreateOrderUseCase } from '../application/CreateOrderUseCase.js';
 import { ChangeOrderStatusUseCase } from '../application/ChangeOrderStatusUseCase.js';
-import { ListOrdersUseCase } from '../application/ListOrdersUseCase.js';
+import { ListOrdersByUserUseCase } from '../application/ListOrdersByUserUseCase.js';
+import { ListAllOrdersUseCase } from '../application/ListAllOrdersUseCase.js';
 import { GetOrderUseCase } from '../application/GetOrderUseCase.js';
 
 const orderRepository = new OrderRepository();
 const productRepository = new ProductRepository();
+const cartItemRepository = new CartItemRepository();
 
 export class OrderController {
   async index(request, response, next) {
     try {
-      const useCase = new ListOrdersUseCase(orderRepository);
+      const useCase = new ListOrdersByUserUseCase(orderRepository);
       const orders = await useCase.execute(request.params.userId);
       return sendResponse(response, 200, orders);
     } catch (error) {
@@ -33,7 +36,7 @@ export class OrderController {
 
   async store(request, response, next) {
     try {
-      const useCase = new CreateOrderUseCase(orderRepository);
+      const useCase = new CreateOrderUseCase(orderRepository, cartItemRepository);
       const order = await useCase.execute(request.body);
       return sendResponse(response, 201, order, 'Pedido criado com sucesso');
     } catch (error) {
@@ -58,6 +61,16 @@ export class OrderController {
       
       await useCase.execute(request.params.id);
       return sendResponse(response, 200, null, 'Pedido cancelado com sucesso');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async list(request, response, next) {
+    try {
+      const useCase = new ListAllOrdersUseCase(orderRepository);
+      const orders = await useCase.execute();
+      return sendResponse(response, 200, orders);
     } catch (error) {
       next(error);
     }
