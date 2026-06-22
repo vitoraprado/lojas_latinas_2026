@@ -30,23 +30,23 @@ export class CategoryRepository {
     return rows[0];
   }
 
-  async create(name, description) {
+  async create(category) {
     const pool = await getMysqlPool();
 
     const [result] = await pool.query(
       'INSERT INTO categories(name, description) VALUES (?, ?)',
-      [name, description]
+      [category.name, category.description]
     );
 
     return result.insertId;
   }
 
-  async update(id, name, description) {
+  async update(id, category) {
     const pool = await getMysqlPool();
 
     await pool.query(
       'UPDATE categories SET name = ?, description = ? WHERE id = ?',
-      [name, description, id]
+      [category.name, category.description, id]
     );
   }
 

@@ -43,23 +43,23 @@ export class UserRepository {
     return rows[0];
   }
 
-  async create(name, user_type, email, password) {
+  async create(user) {
     const pool = await getMysqlPool();
 
     const [result] = await pool.query(
       'INSERT INTO users(name, user_type, email, password) VALUES (?, ?, ?, ?)',
-      [name, user_type, email, password]
+      [user.name, user.user_type, user.email, user.password]
     );
 
     return result.insertId;
   }
 
-  async update(id, name, user_type, email, password) {
+  async update(id, user) {
     const pool = await getMysqlPool();
 
     await pool.query(
       'UPDATE users SET name = ?, user_type = ?, email = ?, password = ? WHERE id = ?',
-      [name, user_type, email, password, id]
+      [user.name, user.user_type, user.email, user.password, id]
     );
   }
 

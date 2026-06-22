@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
@@ -7,23 +7,28 @@ import { getUser, logout } from '../../../services/auth';
 
 const emptyCategory = { id: null, name: '', description: '' }
 const emptyProduct = { id: null, category_id: 0, name: '', price: 0, stock: 0 }
+const emptyUser = { name: '', email: '', password: '', user_type: 2 } // 1 - Funcionário, 2 - Cliente
 
 export default function Home() {
   const router = useRouter();
   const [categories, setCategories] = useState([])
   const [products, setProducts] = useState([])
+  const [allOrders, setAllOrders] = useState([])
   const [category, setCategory] = useState(emptyCategory)
   const [product, setProduct] = useState(emptyProduct)
+  const [newUser, setNewUser] = useState(emptyUser)
   const [message, setMessage] = useState('')
 
   const load = async () => {
     try {
-      // Extrai a propriedade .data dos novos objetos de resposta da API
       const resCategories = await request('/categories')
       const resProducts = await request('/products')
+      const resOrders = await request('/orders')
       
       setCategories(resCategories?.data || [])
       setProducts(resProducts?.data || [])
+      setAllOrders(resOrders?.data || [])
+      
       setMessage('Dados carregados com sucesso.')
     } catch (error) {
       setMessage(error.message || 'Falha ao carregar dados.')
@@ -75,6 +80,43 @@ export default function Home() {
     }
   }
 
+  // NOVO: Cadastrar Usuário ou Funcionário
+  const handleCreateUser = async () => {
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      setMessage('Por favor, preencha todos os campos do usuário.');
+      return;
+    }
+
+    try {
+      // Dispara para o seu endpoint de criação de usuários (Ex: POST /users ou POST /register)
+      await request('/users', {
+        method: 'POST',
+        body: JSON.stringify(newUser)
+      });
+
+      setNewUser(emptyUser);
+      setMessage('Usuário/Funcionário cadastrado com sucesso!');
+    } catch (error) {
+      setMessage(error.message || 'Falha ao cadastrar usuário.');
+    }
+  };
+
+  // NOVO: Alterar status do pedido (Integrado com o seu ChangeOrderStatusUseCase através do PUT)
+  const handleChangeStatus = async (orderId, newStatus) => {
+    try {
+      // Envia o payload exatamente como esperado pelo seu controller { status: X }
+      await request(`/orders/${orderId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: Number(newStatus) })
+      });
+
+      setMessage(`Status do pedido #${orderId} atualizado com sucesso!`);
+      await load(); // Recarrega os pedidos atualizados
+    } catch (error) {
+      setMessage(error.message || 'Falha ao alterar status do pedido.');
+    }
+  };
+
   const removeCategory = async (id) => {
     await request(`/categories/${id}`, { method: 'DELETE' })
     await load()
@@ -87,12 +129,23 @@ export default function Home() {
     setMessage('Produto removido com sucesso.')
   }
 
+  // Retorna a cor correspondente para a linha do pedido
+  const getStatusColor = (status) => {
+    switch (Number(status)) {
+      case 1: return 'table-warning';   // Pendente
+      case 2: return 'table-info';      // Enviado
+      case 3: return 'table-success';   // Entregue
+      case 4: return 'table-danger';    // Cancelado
+      default: return '';
+    }
+  };
+
   return (
     <div className="container-fluid bg-light min-vh-100 py-5">
       <main className="container">
         
         {/* Cabeçalho da Página */}
-        <div className="d-flex align-items-center mb-2">
+        <div className="d-flex align-items-center mb-4">
           <i className="bi bi-person-vcard text-primary me-2" style={{ fontSize: '2rem' }}></i>
 
           <h1 className="fw-bold text-dark mb-0">
@@ -100,7 +153,7 @@ export default function Home() {
           </h1>
 
           <button
-            className="btn btn-primary ms-auto fw-bold"
+            className="btn btn-primary ms-auto fw-bold rounded-pill px-4"
             onClick={() => {
               logout();
               router.push('./login');
@@ -115,11 +168,12 @@ export default function Home() {
           <div className="alert alert-primary border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center" role="alert">
             <i className="bi bi-info-circle-fill me-2 fs-5"></i>
             <div>{message}</div>
+            <button type="button" className="btn-close ms-auto" onClick={() => setMessage('')}></button>
           </div>
         ) : null}
 
-        {/* Grade Principal (Categorias e Produtos lado a lado) */}
-        <div className="row g-4">
+        {/* Grade Superior (Categorias e Produtos) */}
+        <div className="row g-4 mb-4">
           
           {/* SEÇÃO: CATEGORIAS */}
           <section className="col-12 col-xl-5">
@@ -131,7 +185,6 @@ export default function Home() {
               </div>
               
               <div className="card-body p-4">
-                {/* Formulário de Cadastro/Edição */}
                 <div className="row g-2 mb-4">
                   <div className="col-12">
                     <input 
@@ -164,7 +217,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Tabela de Exibição */}
                 <div className="table-responsive">
                   <table className="table table-hover align-middle mb-0">
                     <thead className="table-light text-muted small">
@@ -208,7 +260,6 @@ export default function Home() {
               </div>
 
               <div className="card-body p-4">
-                {/* Formulário de Cadastro/Edição */}
                 <div className="row g-2 mb-4">
                   <div className="col-12 col-md-6">
                     <select className="form-select" value={product.category_id} onChange={e => setProduct({ ...product, category_id: Number(e.target.value) })}>
@@ -260,7 +311,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Tabela de Exibição */}
                 <div className="table-responsive">
                   <table className="table table-hover align-middle mb-0">
                     <thead className="table-light text-muted small">
@@ -302,6 +352,134 @@ export default function Home() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          </section>
+        </div>
+        
+        <div className="row g-4 mt-2">
+          
+          {/* CADASTRO DE USUÁRIOS / FUNCIONÁRIOS */}
+          <section className="col-12 col-lg-4">
+            <div className="card shadow-sm border-0 rounded-3 bg-white h-100">
+              <div className="card-header bg-white border-0 pt-4 px-4">
+                <h3 className="fw-bold text-dark mb-0 d-flex align-items-center">
+                  <i className="bi bi-person-plus text-primary me-2"></i> Cadastro de Equipe / Clientes
+                </h3>
+              </div>
+              <div className="card-body p-4">
+                <div className="d-flex flex-column gap-3">
+                  <div>
+                    <label className="form-label text-muted small fw-semibold">Nome Completo</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="Ex: João Silva"
+                      value={newUser.name}
+                      onChange={e => setNewUser({ ...newUser, name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label text-muted small fw-semibold">E-mail de Acesso</label>
+                    <input 
+                      type="email" 
+                      className="form-control" 
+                      placeholder="Ex: joao@loja.com"
+                      value={newUser.email}
+                      onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label text-muted small fw-semibold">Senha Temporária</label>
+                    <input 
+                      type="password" 
+                      className="form-control" 
+                      placeholder="Mínimo 6 caracteres"
+                      value={newUser.password}
+                      onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label text-muted small fw-semibold">Nível de Permissão</label>
+                    <select 
+                      className="form-select" 
+                      value={newUser.user_type}
+                      onChange={e => setNewUser({ ...newUser, user_type: Number(e.target.value) })}
+                    >
+                      <option value={2}>Cliente</option>
+                      <option value={1}>Funcionário</option>
+                    </select>
+                  </div>
+                  <button 
+                    onClick={handleCreateUser} 
+                    className="btn btn-success fw-bold w-100 mt-2 py-2 rounded-3"
+                  >
+                    <i className="bi bi-check-lg me-2"></i>Registrar Usuário
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* GERENCIAMENTO DE PEDIDOS DO SISTEMA */}
+          <section className="col-12 col-lg-8">
+            <div className="card shadow-sm border-0 rounded-3 bg-white h-100">
+              <div className="card-header bg-white border-0 pt-4 px-4">
+                <h3 className="fw-bold text-dark mb-0 d-flex align-items-center">
+                  <i className="bi bi-currency-dollar text-primary me-2"></i> Gerenciamento de Pedidos
+                </h3>
+              </div>
+              <div className="card-body p-4">
+                {allOrders.length === 0 ? (
+                  <div className="text-center py-5 text-muted">
+                    <i className="bi bi-box fs-1 mb-2 d-block"></i>
+                    Nenhum pedido efetuado no sistema até o momento.
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table align-middle table-hover mb-0">
+                      <thead className="table-light text-muted small">
+                        <tr>
+                          <th>Pedido</th>
+                          <th>Usuário</th>
+                          <th>Data</th>
+                          <th>Status Atual</th>
+                          <th className="text-center" style={{ width: '200px' }}>Alterar Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allOrders.map(order => (
+                          <tr key={order.id} className={getStatusColor(order.status)}>
+                            <td className="fw-bold text-dark">#{order.id}</td>
+                            <td className="text-secondary fw-semibold">User #{order.user_name}</td>
+                            <td className="text-muted small">
+                              {new Date(order.order_date).toLocaleDateString('pt-BR')}
+                            </td>
+                            <td>
+                              {Number(order.status) === 1 && <span className="badge bg-warning text-dark px-2 py-1">Pendente</span>}
+                              {Number(order.status) === 2 && <span className="badge bg-info text-dark px-2 py-1">Enviado</span>}
+                              {Number(order.status) === 3 && <span className="badge bg-success text-white px-2 py-1">Entregue</span>}
+                              {Number(order.status) === 4 && <span className="badge bg-danger text-white px-2 py-1">Cancelado</span>}
+                            </td>
+                            <td>
+                              {/* Select para o funcionário alterar o status do pedido em tempo real */}
+                              <select 
+                                className="form-select form-select-sm fw-bold border-secondary-subtle"
+                                value={order.status}
+                                onChange={e => handleChangeStatus(order.id, e.target.value)}
+                              >
+                                <option value={1}>1 - Pendente</option>
+                                <option value={2}>2 - Enviado</option>
+                                <option value={3}>3 - Entregue</option>
+                                <option value={4}>4 - Cancelado</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </section>
