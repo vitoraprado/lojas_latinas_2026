@@ -4,6 +4,7 @@ function mapRow(row) {
   return {
     id: row.id,
     category_id: row.category_id,
+    category_name: row.category_name,
     name: row.name,
     stock: row.stock,
     price: row.price,
@@ -11,13 +12,28 @@ function mapRow(row) {
 }
 
 export class ProductRepository {
-  async findAll() {
+  async findAll(filters = {}) {
     const pool = await getMysqlPool();
 
-    const [rows] = await pool.query(
-      'SELECT p.id, p.category_id, c.name as category_name, p.name, p.price, p.stock FROM products p JOIN categories c ON p.category_id = c.id ORDER BY p.id'
-    );
+    let query = `
+      SELECT p.id, p.category_id, c.name as category_name, p.name, p.price, p.stock 
+      FROM products p 
+      JOIN categories c ON p.category_id = c.id 
+      WHERE 1=1
+    `;
+    const params = [];
 
+    if (filters.category_id) {
+      query += " AND p.category_id = ?";
+      params.push(filters.category_id);
+    }
+
+    if (filters.search) {
+      query += " AND p.name LIKE ?";
+      params.push(`%${filters.search}%`);
+    }
+    
+    const [rows] = await pool.query(query, params);
     return rows;
   }
 

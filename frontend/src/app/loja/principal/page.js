@@ -7,19 +7,40 @@ import { getUser, logout } from '../../../services/auth';
 
 export default function MainPage() {
     const router = useRouter();
-    const [message, setMessage] = useState('')
-    const [products, setProducts] = useState([])
-    const [userName, setUserName] = useState('')
+    const [message, setMessage] = useState('');
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [userName, setUserName] = useState('');
 
-    const load = async () => {
+    // Estados para os filtros
+    const [search, setSearch] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+
+    // Carrega produtos aplicando os filtros na URL (Query Params)
+    const loadProducts = async (searchTerm = '', categoryId = '') => {
         try {
-            const response = await request('/products')
-            setProducts(response?.data || [])
-            // Removemos o setMessage de sucesso aqui para não sumir com erros importantes na tela
+            let url = '/products?';
+            const params = new URLSearchParams();
+            
+            if (searchTerm) params.append('search', searchTerm);
+            if (categoryId) params.append('category_id', categoryId);
+            
+            const response = await request(url + params.toString());
+            setProducts(response?.data || []);
         } catch (error) {
-            setMessage(error.message || 'Falha ao carregar dados.');
+            setMessage(error.message || 'Falha ao carregar produtos.');
         }
-    }
+    };
+
+    // Carrega a lista de categorias para preencher o SELECT do filtro
+    const loadCategories = async () => {
+        try {
+            const response = await request('/categories');
+            setCategories(response?.data || []);
+        } catch (error) {
+            console.error('Erro ao carregar categorias:', error);
+        }
+    };
 
     useEffect(() => {
         const user = getUser();
@@ -38,8 +59,24 @@ export default function MainPage() {
             setUserName(user.name);
         }
 
-        load();
+        // Carga inicial dos dados
+        loadCategories();
+        loadProducts();
     }, []);
+
+    // Escuta mudanças nos filtros e dispara a busca no banco de dados
+    const handleFilterChange = (searchTerm, categoryId) => {
+        setSearch(searchTerm);
+        setSelectedCategory(categoryId);
+        loadProducts(searchTerm, categoryId);
+    };
+
+    // Reseta todos os campos de busca de uma vez
+    const handleClearFilters = () => {
+        setSearch('');
+        setSelectedCategory('');
+        loadProducts('', '');
+    };
 
     const addToCart = async (product) => {
         try {
@@ -60,12 +97,11 @@ export default function MainPage() {
                 })
             });
 
-            setMessage(`"${product.name}" adicionado ao carrinho com sucesso!`);
+            alert(`"${product.name}" adicionado ao carrinho com sucesso!`);
         } catch (error) {
-            setMessage(error.message || 'Falha ao adicionar item ao carrinho.');
+            alert(error.message || 'Falha ao adicionar item ao carrinho.');
         }
     };
-
 
     return (
         <>
@@ -115,8 +151,56 @@ export default function MainPage() {
                 </div>
             </nav>
 
-            {/* CONTEÚDO PRINCIPAL (GRID DE PRODUTOS) */}
+            {/* CONTEÚDO PRINCIPAL */}
             <main className="container py-5">
+                
+                {/* SEÇÃO DE FILTROS DINÂMICOS */}
+                <div className="card border-0 shadow-sm rounded-3 p-4 mb-5 bg-light">
+                    <div className="row g-3 align-items-end">
+                        <div className="col-12 col-md-5">
+                            <label className="form-label text-muted small fw-bold">Buscar Produto</label>
+                            <div className="input-group">
+                                <span className="input-group-text bg-white border-end-0 text-muted">
+                                    <i className="bi bi-search"></i>
+                                </span>
+                                <input 
+                                    type="text" 
+                                    className="form-control border-start-0" 
+                                    placeholder="Digite o nome do produto..."
+                                    value={search}
+                                    onChange={(e) => handleFilterChange(e.target.value, selectedCategory)}
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="col-12 col-md-4">
+                            <label className="form-label text-muted small fw-bold">Filtrar por Categoria</label>
+                            <select 
+                                className="form-select"
+                                value={selectedCategory}
+                                onChange={(e) => handleFilterChange(search, e.target.value)}
+                            >
+                                <option value="">Todas as categorias</option>
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="col-12 col-md-3">
+                            {(search || selectedCategory) && (
+                                <button 
+                                    className="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 rounded-3"
+                                    type="button"
+                                    onClick={handleClearFilters}
+                                >
+                                    <i className="bi bi-x-circle"></i> Limpar Filtros
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
                 <h2 className="fw-bold text-dark mb-4 text-center text-sm-start">
                     Nossos Produtos
                 </h2>
@@ -129,6 +213,7 @@ export default function MainPage() {
                   </div>
                 )}
 
+                {/* GRID DE PRODUTOS */}
                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                     {products.map(item => (
                         <div className="col" key={item.id}>
@@ -174,10 +259,11 @@ export default function MainPage() {
                     ))}
                 </div>
 
+                {/* FEEDBACK CASO CORRESPONDÊNCIAS SEJAM ZERADAS */}
                 {products.length === 0 && (
                     <div className="text-center py-5">
                         <i className="bi bi-emoji-neutral text-muted" style={{ fontSize: '3rem' }}></i>
-                        <p className="text-muted mt-2">Nenhum produto disponível no momento.</p>
+                        <p className="text-muted mt-2">Nenhum produto encontrado para os filtros selecionados.</p>
                     </div>
                 )}
             </main>

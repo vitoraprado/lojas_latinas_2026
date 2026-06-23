@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(120) NOT NULL,
   user_type INT NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
-  password VARCHAR(100) NOT NULL
+  password VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS items_cart (
@@ -135,9 +135,9 @@ INSERT INTO products (id, category_id, name, price, stock) VALUES
 ON DUPLICATE KEY UPDATE category_id=VALUES(category_id), name=VALUES(name), price=VALUES(price), stock=VALUES(stock);
 
 INSERT INTO users (id, name, user_type, email, password) VALUES
-(1, 'Vítor Almeida Prado', 1, 'vitoralmeidaprado@gmail.com', 'Vitor'),
-(2, 'Usuário Teste', 2, 'user01@gmail.com', 'Senha123'),
-(3, 'João Silva', 2, 'joao123@gmail.com', 'Joao123')
+(1, 'Fulano de Tal', 1, 'funcionario@gmail.com', '$2b$10$Ad2ERX.dI7iVfmdbJr0Ik.6XCJVV1pn3OrfqhWY3hy4qe4wikM.bC'),
+(2, 'Usuário Teste', 2, 'user01@gmail.com', '$2b$10$/Lqj7q.s4/3rEAoP/4Eu0eYmPvckpO14l6jkcnUSIcPLnoU.aFuqS'),
+(3, 'João Silva', 2, 'joao123@gmail.com', '$2b$10$TcoJXFqR6IZEPwOjR22eZ.E89KN8amp6d7c7NH0az07lQBtK7UxyC')
 ON DUPLICATE KEY UPDATE name=VALUES(name), user_type=VALUES(user_type), email=VALUES(email), password=VALUES(password);
 
 INSERT INTO items_cart (id, user_id, product_id, quantity) VALUES

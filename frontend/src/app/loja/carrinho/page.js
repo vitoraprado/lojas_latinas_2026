@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { request } from '../../../../lib/api'; // Ajuste o caminho se necessário
+import { request } from '../../../../lib/api';
 import { getUser } from '../../../services/auth';
 
 export default function CartPage() {
@@ -34,21 +34,40 @@ export default function CartPage() {
         return cartItems.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
     };
 
-    // 3. Remove um item do carrinho
-    const handleRemoveItem = async (cartItemId) => {
-        if (!confirm('Deseja remover este item do carrinho?')) return;
+    const handleUpdateQuantity = async (item, newQuantity) => {
+        if (newQuantity <= 0) {
+            handleRemoveItem(item.id, true);
+            return;
+        }
+
+        try {
+            await request(`/cart_items/${item.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    user_id: userId,
+                    product_id: item.product_id,
+                    quantity: newQuantity
+                })
+            });
+            
+            setCartItems(prev => prev.map(i => i.id === item.id ? { ...i, quantity: newQuantity } : i));
+        } catch (error) {
+            setMessage(error.message || 'Erro ao atualizar a quantidade.');
+        }
+    };
+
+    const handleRemoveItem = async (cartItemId, skipConfirm = false) => {
+        if (!skipConfirm && !confirm('Deseja remover este item do carrinho?')) return;
 
         try {
             await request(`/cart_items/${cartItemId}`, { method: 'DELETE' });
             setMessage('Item removido com sucesso!');
-            // Recarrega o carrinho atualizado
             loadCart(userId);
         } catch (error) {
             setMessage(error.message || 'Erro ao remover item.');
         }
     };
 
-    // 4. Finaliza a compra (Gera o pedido)
     const handleCheckout = async () => {
         if (cartItems.length === 0) return;
 
@@ -64,15 +83,12 @@ export default function CartPage() {
                 }))
             };
 
-            // Dispara a criação do pedido no OrderController (store)
             await request('/orders', {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
 
             alert('Pedido realizado com sucesso!');
-            
-            // Aqui você pode limpar o carrinho no banco se o backend já não o fizer automaticamente
             router.push('/loja/pedidos');
         } catch (error) {
             setMessage(error.message || 'Erro ao finalizar pedido.');
@@ -81,7 +97,6 @@ export default function CartPage() {
 
     return (
         <>
-            {/* NAV BAR SIMPLES DE RETORNO */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
                 <div className="container">
                     <Link href="/loja/principal" className="btn btn-outline-light btn-sm d-flex align-items-center gap-2">
@@ -119,7 +134,7 @@ export default function CartPage() {
                                         <thead>
                                             <tr className="text-muted">
                                                 <th>Produto</th>
-                                                <th className="text-center">Qtd</th>
+                                                <th className="text-center" style={{ width: '140px' }}>Qtd</th>
                                                 <th className="text-end">Preço</th>
                                                 <th className="text-end">Subtotal</th>
                                                 <th className="text-center">Ações</th>
@@ -136,8 +151,27 @@ export default function CartPage() {
                                                             <span className="fw-bold text-dark">{item.name}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="text-center fw-bold text-secondary">
-                                                        {item.quantity}
+                                                    <td className="text-center">
+                                                        {/* SELETOR DE QUANTIDADE COMPACTO */}
+                                                        <div className="input-group input-group-sm justify-content-center">
+                                                            <button 
+                                                                className="btn btn-outline-secondary px-2"
+                                                                type="button"
+                                                                onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
+                                                            >
+                                                                <i className="bi bi-minus"></i>
+                                                            </button>
+                                                            <span className="input-group-text bg-white px-3 fw-bold text-dark">
+                                                                {item.quantity}
+                                                            </span>
+                                                            <button 
+                                                                className="btn btn-outline-secondary px-2"
+                                                                type="button"
+                                                                onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
+                                                            >
+                                                                <i className="bi bi-plus"></i>
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                     <td className="text-end text-dark">
                                                         R$ {Number(item.price).toFixed(2)}

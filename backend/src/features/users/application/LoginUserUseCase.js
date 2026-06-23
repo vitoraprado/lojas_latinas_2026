@@ -1,4 +1,5 @@
 import { AppError } from '../../../shared/errors/AppError.js';
+import bcrypt from 'bcrypt';
 
 export class LoginUserUseCase {
   constructor(userRepository) {
@@ -12,12 +13,14 @@ export class LoginUserUseCase {
       throw new AppError('Usuário não encontrado', 404);
     }
 
-    if (user.password !== password) {
-    throw new AppError('Senha inválida');
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new AppError('Senha inválida', 401);
     }
 
     if (expectedUserType && user.user_type !== expectedUserType) {
-        throw new AppError('Usuário sem permissão para este acesso');
+      throw new AppError('Usuário sem permissão para este acesso', 403);
     }
 
     return user;
