@@ -3,7 +3,7 @@ export class ListProductsUseCase {
     this.productRepository = productRepository;
   }
 
-  async execute() {
-    return this.productRepository.findAll();
+  async execute(filters = {}) {
+    return this.productRepository.findAll(filters);
   }
 }

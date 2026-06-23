@@ -11,8 +11,10 @@ const repository = new ProductRepository();
 export class ProductController {
   async index(request, response, next) {
     try {
+      const filters = request.query;
       const useCase = new ListProductsUseCase(repository);
-      const products = await useCase.execute();
+      const products = await useCase.execute(filters);
+      
       return sendResponse(response, 200, products);
     } catch (error) {
       next(error);

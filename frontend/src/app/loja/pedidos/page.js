@@ -2,17 +2,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { request } from '../../../../lib/api'; // Ajuste o caminho se necessário
+import { request } from '../../../../lib/api';
 import { getUser } from '../../../services/auth';
 
 export default function OrdersPage() {
     const router = useRouter();
     const [orders, setOrders] = useState([]);
-    const [selectedOrder, setSelectedOrder] = useState(null); // Armazena o pedido detalhado (com itens)
+    const [selectedOrder, setSelectedOrder] = useState(null);
     const [message, setMessage] = useState('');
     const [userId, setUserId] = useState(null);
 
-    // 1. Carrega o histórico de pedidos do usuário conectado
     const loadOrders = async (id) => {
         try {
             const response = await request(`/orders/user/${id}`);
@@ -32,7 +31,6 @@ export default function OrdersPage() {
         loadOrders(user.id);
     }, []);
 
-    // 2. Mapeia o número do status para texto e classe de cor do Bootstrap
     const getStatusBadge = (statusNum) => {
         const status = Number(statusNum);
         switch (status) {
@@ -49,10 +47,8 @@ export default function OrdersPage() {
         }
     };
 
-    // 3. Busca os detalhes de um pedido específico (trazendo os itens acoplados)
     const handleViewDetails = async (orderId) => {
         try {
-            // Dispara para o GetOrderUseCase no seu OrderController (show)
             const response = await request(`/orders/${orderId}`);
             setSelectedOrder(response?.data || null);
         } catch (error) {
@@ -60,26 +56,20 @@ export default function OrdersPage() {
         }
     };
 
-    // 4. Cancela o pedido (Dispara o CancelOrderUseCase no backend)
     const handleCancelOrder = async (orderId) => {
         if (!confirm('Tem certeza de que deseja cancelar este pedido? O estoque dos produtos será devolvido.')) return;
 
         try {
-            // Dispara para o CancelOrderUseCase no OrderController (delete)
             await request(`/orders/${orderId}`, { method: 'DELETE' });
-            setMessage('Pedido cancelado com sucesso e produtos devolvidos ao estoque!');
+            setMessage('Pedido cancelado com sucesso!');
             
-            // Fecha os detalhes se o pedido cancelado for o que estava aberto
             if (selectedOrder?.id === orderId) setSelectedOrder(null);
-            
-            // Recarrega a listagem atualizada
             loadOrders(userId);
         } catch (error) {
             setMessage(error.message || 'Erro ao cancelar pedido.');
         }
     };
 
-    // 5. Calcula o valor total de um pedido baseado nos seus itens detalhados
     const calculateOrderTotal = (items) => {
         if (!items) return 0;
         return items.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
@@ -87,7 +77,6 @@ export default function OrdersPage() {
 
     return (
         <>
-            {/* NAV BAR DE RETORNO */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
                 <div className="container">
                     <Link href="/loja/principal" className="btn btn-outline-light btn-sm d-flex align-items-center gap-2">
@@ -108,7 +97,6 @@ export default function OrdersPage() {
                 )}
 
                 <div className="row g-4">
-                    {/* LISTA DE PEDIDOS HISTÓRICOS */}
                     <div className={selectedOrder ? "col-lg-7" : "col-12"}>
                         <div className="card border-0 shadow-sm rounded-3 p-4">
                             <h5 className="fw-bold text-dark mb-4"><i className="bi bi-receipt me-2 text-primary"></i>Histórico de Compras</h5>
@@ -147,7 +135,6 @@ export default function OrdersPage() {
                                                             >
                                                                 Ver Itens
                                                             </button>
-                                                            {/* Botão de cancelar só aparece se o status for 1 (Pendente) */}
                                                             {Number(order.status) === 1 && (
                                                                 <button 
                                                                     className="btn btn-outline-danger btn-sm rounded-circle"
@@ -168,7 +155,6 @@ export default function OrdersPage() {
                         </div>
                     </div>
 
-                    {/* CARD LATERAL EXPANSÍVEL: DETALHES DO PEDIDO SELECIONADO */}
                     {selectedOrder && (
                         <div className="col-lg-5">
                             <div className="card border-0 shadow-sm rounded-3 p-4 bg-light position-sticky" style={{ top: '20px' }}>
@@ -181,7 +167,6 @@ export default function OrdersPage() {
                                     {selectedOrder.items?.map(item => (
                                         <div key={item.id} className="list-group-item d-flex justify-content-between align-items-start px-0 bg-transparent border-0 mb-2">
                                             <div className="me-auto">
-                                                {/* Se o seu repositório não trouxer o nome do produto direto na query, você pode usar item.product_id */}
                                                 <div className="fw-bold text-dark">{item.name || `Produto #${item.product_id}`}</div>
                                                 <small className="text-muted">Qtd: {item.quantity} x R$ {Number(item.price).toFixed(2)}</small>
                                             </div>

@@ -41,25 +41,19 @@ export default function LoginPage() {
 
   return (
     <div className="container">
-      {/* Centraliza o card verticalmente e horizontalmente na tela */}
       <div className="row justify-content-center align-items-center min-vh-100">
         <div className="col-12 col-sm-8 col-md-6 col-lg-4">
-          
-          {/* Card de Login */}
           <div className="card shadow border-0 rounded-3">
             <div className="card-body p-4 p-sm-5">
               
-              {/* Título e Logo */}
               <div className="text-center mb-4">
                 <i className="bi bi-person-fill" style={{ fontSize: '3rem', color: "blue" }}></i>
                 <h3 className="fw-bold text-dark">Acesso - Usuários</h3>
                 <p className="text-muted small">Insira seus dados</p>
               </div>
 
-              {/* Formulário */}
               <form onSubmit={handleLogin}>
                 
-                {/* Campo de E-mail */}
                 <div className="form-floating mb-3">
                   <input 
                     type="email" 
@@ -73,7 +67,6 @@ export default function LoginPage() {
                   <label htmlFor="floatingInput">Endereço de e-mail</label>
                 </div>
 
-                {/* Campo de Senha */}
                 <div className="form-floating mb-3">
                   <input 
                     type="password" 
@@ -87,24 +80,20 @@ export default function LoginPage() {
                   <label htmlFor="floatingPassword">Senha</label>
                 </div>
 
-                {/* Esqueci a senha */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <a href="#" className="text-decoration-none small">Esqueceu a senha?</a>
                 </div>
 
-                {/* Botão de Entrar */}
                 <button className="btn btn-primary btn-lg w-100 fw-bold mb-3" type="submit">
                   <i className="bi bi-box-arrow-in-right me-2"></i>Entrar
                 </button>
 
-                {/* Link para cadastro */}
-                <div className="text-center">
+                {/*<div className="text-center">
                   <p className="text-muted small mb-0">
                     Não tem uma conta? <a href="#" className="text-decoration-none fw-bold">Cadastre-se</a>
                   </p>
-                </div>
+                </div>*/}
 
-                {/* Voltar para o início */}
                 <div className="text-center">
                     <Link href="/" className="text-decoration-none fw-bold small mb-0">Voltar</Link>
                 </div>

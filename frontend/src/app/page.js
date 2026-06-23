@@ -4,7 +4,6 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <>
-      {/* 1. Barra de Navegação (Navbar) */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div className="container">
           <a className="navbar-brand fw-bold text-primary">
@@ -33,12 +32,10 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* 2. Seção Principal (Hero Section) */}
       <header className="bg-light py-5 border-bottom">
         <div className="container py-5">
           <div className="row align-items-center g-5">
             
-            {/* Lado Esquerdo: Textos e Botões */}
             <div className="col-lg-6">
               <h1 className="display-4 fw-bold text-dark mb-3">
                 Sua próxima compra é conosco!
@@ -48,23 +45,19 @@ export default function Home() {
               </p>
               
               <div className="d-grid gap-2 d-md-flex justify-content-md-start">
-                {/* Corrigido: O Link agora se comporta diretamente como o botão */}
                 <Link href="/loja/login" className="btn btn-primary btn-lg px-4 me-md-2 fw-bold d-inline-flex align-items-center justify-content-center">
                   <i className="bi bi-person-fill me-2"></i>
                   Login
                 </Link>
                 
-                {/* Corrigido: Removido o 'className' duplicado de dentro das classes */}
-                <button type="button" className="btn btn-outline-secondary btn-lg px-4 d-inline-flex align-items-center justify-content-center">
+               {/*<button type="button" className="btn btn-outline-secondary btn-lg px-4 d-inline-flex align-items-center justify-content-center">
                   <i className="bi bi-person-fill-add me-2"></i>
                   Cadastre-se
-                </button>
+                </button>*/}
               </div>
             </div>
 
-            {/* Lado Direito: Apenas a Logo PNG Solta */}
             <div className="col-lg-6 text-center">
-              {/* Removemos o card branco e adicionamos uma leve transição/animação responsiva */}
               <img 
                 src="/logo_ll.png" 
                 alt="Logo Lojas Latinas" 
@@ -79,7 +72,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 3. Seção de Cards (Grid System) */}
       <section className="py-5">
         <div className="container my-5">
           <div className="row g-4 text-center">
@@ -114,7 +106,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Rodapé */}
       <footer className="py-4 bg-dark text-white-50 text-center mt-auto">
         <div className="container">
           <small>&copy; {new Date().getFullYear()} - Lojas Latinas<br/></small>
