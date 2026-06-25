@@ -12,7 +12,7 @@ export class DeleteCategoryUseCase {
       throw new AppError('Categoria não encontrada', 404);
     }
 
-    await this.categoryRepository.delete(id);
+    await this.categoryRepository.remove(id);
     return true;
   }
 }

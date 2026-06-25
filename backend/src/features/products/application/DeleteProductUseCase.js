@@ -12,7 +12,7 @@ export class DeleteProductUseCase {
       throw new AppError('Produto não encontrado', 404);
     }
 
-    await this.productRepository.delete(id);
+    await this.productRepository.remove(id);
     return true;
   }
 }
